@@ -90,10 +90,9 @@ The project uses `docker-compose` to orchestrate the following services:
 
 3.  **Start the services:**
     ```bash
-    docker-compose up --build -d
+    docker-compose up -d
     ```
     This command will:
-    *   Build the `app` service (if not already built or if changes are detected).
     *   Pull necessary Docker images for Redis, PostgreSQL, Kong, and Konga.
     *   Start all services in detached mode (`-d`).
 
@@ -124,7 +123,7 @@ The project uses `docker-compose` to orchestrate the following services:
 
 4.  **Add your Student Management API as a Service in Kong:**
     *   In Konga, go to "Services" -> "Add New Service".
-    *   **Name:** `student-api`
+    *   **Name:** `student-api-service`
     *   **Protocol:** `http`
     *   **Host:** `app` (This is the Docker service name for your Node.js application)
     *   **Port:** `3000` (The internal port of your Node.js application)
@@ -133,11 +132,13 @@ The project uses `docker-compose` to orchestrate the following services:
 5.  **Add a Route for your Service:**
     *   Go to the newly created `student-api` service.
     *   Click "Add New Route".
-    *   **Name:** `student-api-route`
+    *   **Name:** `student-routes`
     *   **Protocols:** `http`, `https`
     *   **Hosts:** (Leave empty or specify if you have a domain)
-    *   **Paths:** `/students` (or `/` to proxy all paths to your app)
-    *   Click "Submit Route`.
+    *   **Paths:** `/api/students`
+    *   Ensure **strip_path** is set to `No` for both routes.
+    *   Click `Submit Route`.
+    *   Similarly you can do for `user-routes` `/api/user`.
 
 Now, requests to `http://localhost:8000/students` (or your configured path) will be routed through Kong to your Node.js application.
 
