@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  app:
+    image: sairamseerapu/kong-student-api:v1 # This pulls your pre-built image
+    restart: always
+    # We no longer expose the app's port directly. Traffic goes through Kong.
+    # ports:
+    #   - "3000:3000"
+    environment:
+      - URL=${URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXP=${JWT_EXP}
+      - PORT=${PORT}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - student-app-network
+
+  # Your existing redis service
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    networks:
+      - student-app-network
+
+  # --- NEW KONG SERVICES ---
+  kong-db:
+    image: postgres:13
+    container_name: kong-db
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_DB: kong
+      POSTGRES_PASSWORD: kong_password
+    networks:
+      - student-app-network
+    volumes:
+      - kong_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "kong"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: on-failure
+
+  kong-migrations:
+    image: kong:latest
+    container_name: kong-migrations
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong_password
+    command: "kong migrations bootstrap"
+    depends_on:
+      kong-db:
+        condition: service_healthy
+    networks:
+      - student-app-network
+    restart: on-failure
+
+  kong-gateway:
+    image: kong:latest
+    container_name: kong-gateway
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-db
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong_password
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+    ports:
+      - "8000:8000"  # API Traffic
+      - "8001:8001"  # Admin API
+    depends_on:
+      kong-migrations:
+        condition: service_completed_successfully
+    networks:
+      - student-app-network
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: on-failure
+
+  konga:
+    image: pantsel/konga
+    container_name: konga
+    ports:
+      - "1337:1337" # Konga UI
+    environment:
+      KONGA_KONG_ADMIN_URL: http://kong-gateway:8001
+    networks:
+      - student-app-network
+    depends_on:
+      - kong-gateway
+    restart: always
+
+networks:
+  student-app-network:
+    driver: bridge
+
+volumes:
+  kong_db_data: {}
