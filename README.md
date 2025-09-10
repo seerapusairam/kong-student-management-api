@@ -37,12 +37,11 @@ The system uses a gateway-first architecture. All client requests are sent to th
 ---
 ## Features
 
-This deployment repository provides:
-* **API Gateway Layer:** Implements Kong as a single, secure entry point for the backend service.
-* **Centralized Traffic Control:** The rate-limiting logic, previously handled in the Node.js application, has been removed from the application code and is now managed and enforced at the edge by the Kong Gateway.
-* **Response Transformation:** The gateway modifies responses to create a clean public API contract, removing internal data fields (like `_id`, `__v`) and unnecessary headers (like `X-Powered-By`) before they reach the client.
-* **Centralized Logging:** Captures detailed, structured JSON logs for every API request and response using the http-log plugin, enabling robust monitoring and observability.
-* **Full Stack Orchestration:** A single `docker-compose` command launches the entire environment.
+This repository provides the deployment configuration to run the student-management-api behind the Kong API Gateway. This architecture enables powerful, centralized API management capabilities.
+
+**API Gateway Layer:** Implements Kong as a single, secure entry point for the backend service.
+**Full Stack Orchestration:** A single docker-compose command launches the entire environment, including the Student API, Kong Gateway, Konga UI, PostgreSQL database, and Redis cache.
+**Decoupled Policy Management:** Allows for the central management of policies like rate-limiting, logging, and response transformation at the gateway layer, keeping the backend service's code clean.
 
 For a complete list of the **application's features** (CRUD operations, JWT authentication, etc.), please refer to the main application repository:
 * **[Student Management API Repository](https://github.com/seerapusairam/student-management-api)**
@@ -113,7 +112,7 @@ The project uses `docker-compose` to orchestrate the following services:
 *   **Konga UI:** `http://localhost:1337`
     Access the Konga interface to manage your Kong Gateway. You will need to set up a connection to Kong Admin API (`http://kong-gateway:8001`) within Konga.
 
-## Configuring Kong (via Konga)
+## Configuring Kong (via Konga) - What i have done.
 
 1.  Navigate to `http://localhost:1337` in your browser.
 2.  Follow the on-screen instructions to set up your Konga user.
@@ -141,6 +140,12 @@ The project uses `docker-compose` to orchestrate the following services:
     *   Ensure **strip_path** is set to `No` for both routes.
     *   Click `Submit Route`.
     *   Similarly you can do for `user-routes` `/api/user`.
+
+6. **Add Plugins to Enhance the API:**
+    * This is where you can apply the policies you've developed.
+    * Rate Limiting: On the student-api-service, add the rate-limiting plugin to protect the API from overuse.
+    * Centralized Logging: Add the http-log plugin and point it to a log collection endpoint to capture detailed request/response data.
+    * Response Transformation: On the student-routes route, add the response-transformer plugin to remove internal fields and clean up headers for public clients.
 
 Now, requests to `http://localhost:8000/students` (or your configured path) will be routed through Kong to your Node.js application.
 
