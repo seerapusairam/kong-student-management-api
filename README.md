@@ -40,6 +40,8 @@ The system uses a gateway-first architecture. All client requests are sent to th
 This deployment repository provides:
 * **API Gateway Layer:** Implements Kong as a single, secure entry point for the backend service.
 * **Centralized Traffic Control:** The rate-limiting logic, previously handled in the Node.js application, has been removed from the application code and is now managed and enforced at the edge by the Kong Gateway.
+* **Response Transformation:** The gateway modifies responses to create a clean public API contract, removing internal data fields (like `_id`, `__v`) and unnecessary headers (like `X-Powered-By`) before they reach the client.
+* **Centralized Logging:** Captures detailed, structured JSON logs for every API request and response using the http-log plugin, enabling robust monitoring and observability.
 * **Full Stack Orchestration:** A single `docker-compose` command launches the entire environment.
 
 For a complete list of the **application's features** (CRUD operations, JWT authentication, etc.), please refer to the main application repository:
