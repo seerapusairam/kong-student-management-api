@@ -62,7 +62,9 @@ services:
     restart: on-failure
 
   kong-gateway:
-    image: kong:latest
+    build:
+      context: .
+      dockerfile: Dockerfile      # bulid a docker file to copy custom plugin into existing plugin folder
     container_name: kong-gateway
     environment:
       KONG_DATABASE: postgres
@@ -74,6 +76,7 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_PLUGINS: bundled,custom-plugin #bundled- has all the oss plugins and my custom-plugin
     ports:
       - "8000:8000"  # API Traffic
       - "8001:8001"  # Admin API
