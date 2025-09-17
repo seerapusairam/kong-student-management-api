@@ -42,3 +42,4 @@ services:
       minute: 10
       limit_by: consumer
       fault_tolerant: true
+  - name: custom-plugin
