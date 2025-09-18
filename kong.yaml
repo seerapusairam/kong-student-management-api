@@ -21,6 +21,7 @@ services:
           - createdAt
           - updatedAt
           - __v
+    - name: custom-plugin
     protocols:
     - http
     - https
@@ -42,4 +43,3 @@ services:
       minute: 10
       limit_by: consumer
       fault_tolerant: true
-  - name: custom-plugin
