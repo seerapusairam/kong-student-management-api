@@ -157,6 +157,7 @@ Your API is now live and accessible through the Kong Gateway at `http://localhos
     * Rate Limiting: On the student-api-service, add the rate-limiting plugin to protect the API from overuse.
     * Centralized Logging: Add the http-log plugin and point it to a log collection endpoint to capture detailed request/response data.
     * Response Transformation: On the student-routes route, add the response-transformer plugin to remove internal fields and clean up headers for public clients.
+    * custom-header: On the student-routes route, add the custom-header plugin to add new header which we have created with lua.
 
 Now, requests to `http://localhost:8000/api/students` (or your configured path) will be routed through Kong to your Node.js application.
 
