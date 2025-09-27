@@ -2,7 +2,7 @@
 
 This project provides a complete deployment environment for the [Student Management API](https://github.com/seerapusairam/student-management-api), placing it behind a customized Kong API Gateway.
 
-The architecture follows modern DevOps and GitOps principles. The application is a pre-built Docker image pulled from a registry, and the entire stack is orchestrated via Docker Compose. The gateway itself is customized with a custom Lua plugins and is managed declaratively using `decK`.
+The architecture follows modern DevOps principles. The application is a pre-built Docker image pulled from a registry, and the entire stack is orchestrated via Docker Compose. The gateway itself is customized with a custom Lua plugins and is managed declaratively using `decK`.
 
 ---
 
@@ -40,7 +40,7 @@ The system uses a gateway-first architecture. All client requests are sent to th
 This repository provides the deployment configuration to run the student-management-api behind the Kong API Gateway. This architecture enables powerful, centralized API management capabilities.
 
 * **Custom Kong Gateway:** The deployment builds a custom Kong Docker image to include a **custom Lua plugin**, demonstrating gateway extensibility.
-* **GitOps & Declarative Management:** Kong's entire configuration (services, routes, plugins) is managed declaratively in a `kong.yaml` file and applied automatically with **`decK`**. This eliminates manual setup and ensures a repeatable, version-controlled environment.
+* **Declarative Management:** Kong's entire configuration (services, routes, plugins) is managed declaratively in a `kong.yaml` file and applied automatically with **`decK`**. This eliminates manual setup and ensures a repeatable, version-controlled environment.
 * **Centralized Policy Enforcement:** Offloads key policies from the application to the gateway, including:
     * **Rate Limiting**
     * **Centralized Logging** (`http-log`)
