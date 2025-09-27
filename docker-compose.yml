@@ -26,7 +26,7 @@ services:
     networks:
       - student-app-network
 
-  # --- NEW KONG SERVICES ---
+  # KONG SERVICES
   kong-db:
     image: postgres:13
     container_name: kong-db
