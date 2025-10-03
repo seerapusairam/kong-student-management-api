@@ -3,8 +3,11 @@ return {
   fields = {
     { config = {
         type = "record",
-        fields = {}
-      }
-    },
+        fields = {
+          { token_name = { type = "string", default = "X-Auth-Token" }},
+          { password = { type = "string", required = true } }
+        }
+      },
+    }
   }
 }

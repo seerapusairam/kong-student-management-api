@@ -22,6 +22,9 @@ services:
           - updatedAt
           - __v
     - name: custom-plugin
+      config:
+        token_name: X-Auth-Token
+        password: Qweasdzxc@123
     protocols:
     - http
     - https
