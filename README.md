@@ -73,7 +73,7 @@ The project uses `docker-compose` to orchestrate the following services:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/seerapusairam/kong-student-management-api.git](https://github.com/seerapusairam/kong-student-management-api.git)
+    git clone https://github.com/seerapusairam/kong-student-management-api.git
     cd kong-student-management-api
     ```
 
@@ -148,16 +148,17 @@ Your API is now live and accessible through the Kong Gateway at `http://localhos
     *   **Protocols:** `http`, `https`
     *   **Hosts:** (Leave empty or specify if you have a domain)
     *   **Paths:** `/api/students`
-    *   Ensure **strip_path** is set to `No` for both routes.
+    *   Ensure **strip_path** is set to `No`.
     *   Click `Submit Route`.
-    *   Similarly you can do for `user-routes` `/api/user`.
+
+    *   **Note:** After running `deck sync -s kong.yaml`, the `user-routes` for `/api/user` should already be configured. You can verify its presence in Konga under "Services" -> "student-api-service" -> "Routes".
 
 6. **Add Plugins to Enhance the API:**
     * This is where you can apply the policies you've developed.
     * Rate Limiting: On the student-api-service, add the rate-limiting plugin to protect the API from overuse.
     * Centralized Logging: Add the http-log plugin and point it to a log collection endpoint to capture detailed request/response data.
     * Response Transformation: On the student-routes route, add the response-transformer plugin to remove internal fields and clean up headers for public clients.
-    * custom-header: On the student-routes route, add the custom-header plugin to add new header which we have created with lua.
+    * **Custom Authentication Plugin:** On the `student-routes` route, add the `custom-plugin`. This plugin validates an `X-Auth-Token` header against a configured password and, if successful, adds an `X-Custom-Header` to the response. You will need to configure the `password` and optionally `token_name` (defaults to `X-Auth-Token`) for this plugin.
 
 Now, requests to `http://localhost:8000/api/students` (or your configured path) will be routed through Kong to your Node.js application.
 
@@ -178,7 +179,7 @@ curl -X POST http://localhost:8000/api/user/login -H "Content-Type: application/
 
 ```bash
 # You will see the custom header 'X-Custom-Header' in the response
-curl http://localhost:8000/api/students -H "Authorization: Bearer YOUR_TOKEN_HERE"
+curl http://localhost:8000/api/students -H "Authorization: Bearer YOUR_TOKEN_HERE" -H "Content-Type: application/json" -H "X-Auth-Token: Qweasdzxc@123" 
 ```
 
 ## Stopping the Services
