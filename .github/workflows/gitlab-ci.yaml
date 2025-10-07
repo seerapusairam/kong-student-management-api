@@ -61,13 +61,13 @@ jobs:
 
     # Building and running the docker-compose
       - name: Run docker-compose
-        run: docker-compose up -d --build
-        env:
-          URL: ${{ secrets.URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_EXP: ${{ secrets.JWT_EXP }}
-          PORT: ${{ secrets.PORT }}
-          REDIS_URL: ${{ secrets.REDIS_URL }} 
+        run: |
+          export URL=${{ secrets.URL }}
+          export JWT_SECRET=${{ secrets.JWT_SECRET }}
+          export JWT_EXP=${{ secrets.JWT_EXP }}
+          export PORT=${{ secrets.PORT }}
+          export REDIS_URL=${{ secrets.REDIS_URL }}
+          docker-compose up -d --build
 
     # Waiting for 15sec until the container is up running
       - name: Wait for Container to start
@@ -76,13 +76,13 @@ jobs:
     #To check all containers
       - name: Check running containers
         run: docker ps
-    
+
+      - name: Validate Kong config
+        run: deck validate --config kong.yaml
+
     # Sync Kong configuration
       - name: Run decK sync
-        run: |
-          deck validate --config kong.yaml
-          deck diff kong.yaml
-          deck sync -s kong.yaml
+        run: deck sync -s kong.yaml
 
     # Calling the route to check if the application was deployed properly
       - name: Curl health endpoint
