@@ -78,3 +78,23 @@ jobs:
     #To check all containers
       - name: Check running containers
         run: docker ps
+    
+    # Sync Kong configuration
+      - name: Run decK sync
+        run: deck sync -s kong.yaml
+
+    # Calling the route to check if the application was deployed properly
+      - name: Curl health endpoint
+        run: |
+          curl -i -X POST http://localhost:8000/api/user/login \
+          -H "Content-Type: application/json" \
+          -H "X-Auth-Token: Qweasdzxc@1123" \
+          -d '{
+                "email": "bhanu@gmail.com",
+                "password": "password"
+              }'
+
+    # Removing container and image
+      - name: Stop and remove containers
+        if: always() # This ensures cleanup happens even if a step fails
+        run: docker-compose down
