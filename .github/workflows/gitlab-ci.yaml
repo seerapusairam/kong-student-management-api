@@ -80,7 +80,7 @@ jobs:
     # Sync Kong configuration
       - name: Run decK sync
         run: |
-          deck validate kong.yaml
+          deck validate --config kong.yaml
           deck diff kong.yaml
           deck sync -s kong.yaml
 
