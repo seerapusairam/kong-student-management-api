@@ -58,9 +58,7 @@ jobs:
     # Replace build context with the newly built image
       - name: Update docker-compose with new image
         run: |
-          sed -i "s|build:|# build:|g" docker-compose.yml
-          sed -i "s|context: .|# context: .|g" docker-compose.yml
-          sed -i "s|dockerfile: Dockerfile|image: ghcr.io\/${{ github.repository }}\/custom-kong:latest|g" docker-compose.yml
+          sed -i '/build:/,+2c\    image: ghcr.io\/'"${{ github.repository }}"'\/custom-kong:latest' docker-compose.yml
 
     # Building and running the docker-compose
       - name: Run docker-compose
@@ -80,3 +78,17 @@ jobs:
     #To check logs in case of failure
       - name: Show container logs
         run: docker-compose logs
+    
+    # Sync Kong configuration
+      - name: Run decK sync
+        run: deck sync -s kong.yaml
+
+    # Calling the route to check if the application was deployed properly
+      - name: Curl health endpoint
+        run: |
+          curl http://localhost:8000/api/students -H "X-Auth-Token: Qweasdzxc@123"
+
+    # Removing container and image
+      - name: Stop and remove containers
+        if: always() # This ensures cleanup happens even if a step fails
+        run: docker-compose down
