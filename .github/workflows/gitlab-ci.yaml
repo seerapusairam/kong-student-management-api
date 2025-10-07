@@ -48,9 +48,35 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      # Install decK
+    # Install decK
       - name: Install decK
         run: |
           curl -sL https://github.com/kong/deck/releases/download/v1.13.0/deck_1.13.0_linux_amd64.tar.gz -o deck.tar.gz
           tar -xf deck.tar.gz -C .
           sudo mv deck /usr/local/bin/
+
+    # Replace build context with the newly built image
+      - name: Update docker-compose with new image
+        run: |
+          sed -i "s|build:|# build:|g" docker-compose.yml
+          sed -i "s|context: .|# context: .|g" docker-compose.yml
+          sed -i "s|dockerfile: Dockerfile|image: ghcr.io\/${{ github.repository }}\/custom-kong:latest|g" docker-compose.yml
+
+    # Building and running the docker-compose
+      - name: Run docker-compose
+        run: |
+          docker-compose up -d
+        env:
+          URL: ${{ secrets.URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXP: ${{ secrets.JWT_EXP }}
+          PORT: ${{ secrets.PORT }}
+          REDIS_URL: ${{ secrets.REDIS_URL }} 
+
+    # Waiting for 15sec until the container is up running
+      - name: Wait for Container to start
+        run: sleep 15
+
+    #To check logs in case of failure
+      - name: Show container logs
+        run: docker-compose logs
