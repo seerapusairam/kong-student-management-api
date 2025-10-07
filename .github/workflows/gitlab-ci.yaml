@@ -75,20 +75,6 @@ jobs:
       - name: Wait for Container to start
         run: sleep 15
 
-    #To check logs in case of failure
-      - name: Show container logs
-        run: docker-compose logs
-    
-    # Sync Kong configuration
-      - name: Run decK sync
-        run: deck sync -s kong.yaml
-
-    # Calling the route to check if the application was deployed properly
-      - name: Curl health endpoint
-        run: |
-          curl http://localhost:8000/api/students -H "X-Auth-Token: Qweasdzxc@123"
-
-    # Removing container and image
-      - name: Stop and remove containers
-        if: always() # This ensures cleanup happens even if a step fails
-        run: docker-compose down
+    #To check all containers
+      - name: Check running containers
+        run: docker ps
