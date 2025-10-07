@@ -1,5 +1,3 @@
-# .github/workflows/ci.yml
-
 name: Build, Push, and Test Custom Kong Image
 
 on:
@@ -8,6 +6,22 @@ on:
       - main
 
 jobs:
+  #LINT - Check Code Quality First
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Lua and Luacheck
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.1"
+      - run: luarocks install luacheck
+
+      - name: Run Luacheck on custom plugin
+        run: luacheck ./kong-plugins/custom-plugin/
+
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
