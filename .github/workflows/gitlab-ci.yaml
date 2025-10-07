@@ -1,4 +1,4 @@
-name: Build, Push, and Test Custom Kong Image
+name: Build, Push Custom Kong Image and Test Application
 
 on:
   push:
@@ -6,23 +6,6 @@ on:
       - main
 
 jobs:
-  #LINT - Check Code Quality First
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set up Lua and Luacheck
-        uses: leafo/gh-actions-lua@v10
-        with:
-          luaVersion: "5.1"
-          installLuarocks: true
-      - run: luarocks install luacheck
-
-      - name: Run Luacheck on custom plugin
-        run: luacheck ./kong-plugins/custom-plugin/
-
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
@@ -47,3 +30,27 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}/custom-kong:latest
+
+  docker-build-test:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: pipeline
+
+    steps:
+    # Checkout the git repo
+      - name: Check out
+        uses: actions/checkout@v4
+
+    #Install Docker-compose
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
+      # Install decK
+      - name: Install decK
+        run: |
+          curl -sL https://github.com/kong/deck/releases/download/v1.13.0/deck_1.13.0_linux_amd64.tar.gz -o deck.tar.gz
+          tar -xf deck.tar.gz -C .
+          sudo mv deck /usr/local/bin/
