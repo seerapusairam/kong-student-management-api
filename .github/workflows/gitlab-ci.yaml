@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-image-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,11 +31,9 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}/custom-kong:latest
 
-  docker-build-test:
+  docker-install-replace:
     runs-on: ubuntu-latest
-    needs: build-and-push
-    environment: pipeline
-
+    needs: build-image-push
     steps:
     # Checkout the git repo
       - name: Check out
@@ -59,11 +57,16 @@ jobs:
       - name: Update docker-compose with new image
         run: |
           sed -i '/build:/,+2c\    image: ghcr.io\/'"${{ github.repository }}"'\/custom-kong:latest' docker-compose.yml
-
+          
+  docker-bulid-test:
+    runs-on: ubuntu-latest
+    needs: docker-install-replace
+    environment: pipeline
+    
+    steps:
     # Building and running the docker-compose
       - name: Run docker-compose
-        run: |
-          docker-compose up -d
+        run: docker-compose up -d --build
         env:
           URL: ${{ secrets.URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -81,12 +84,15 @@ jobs:
     
     # Sync Kong configuration
       - name: Run decK sync
-        run: deck sync -s kong.yaml
+        run: |
+          deck validate kong.yaml
+          deck diff kong.yaml
+          deck sync -s kong.yaml
 
     # Calling the route to check if the application was deployed properly
       - name: Curl health endpoint
         run: |
-          curl -i -X POST http://localhost:8000/api/user/login \
+          curl -i -X POST http://localhost:8000/api/users/login \
           -H "Content-Type: application/json" \
           -H "X-Auth-Token: Qweasdzxc@1123" \
           -d '{
