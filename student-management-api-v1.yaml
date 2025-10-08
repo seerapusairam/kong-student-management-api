@@ -1,21 +1,23 @@
 openapi: 3.0.3
 info:
   title: Student Management API
-  version: 1.0.0
+  version: 1.0.1
   description: |
-    A RESTful API for managing students and users, built with Node.js, Express.js, and MongoDB.
-    Supports CRUD operations, authentication, filtering, sorting, and pagination.
+    A RESTful API for managing students and users, exposed via a Kong API Gateway.
+    The gateway provides centralized policy enforcement, including rate limiting, centralized logging, response transformation, and custom authentication plugins.
+    The API itself is built with Node.js, Express.js, and MongoDB, supporting CRUD operations, JWT authentication filtering, sorting, and pagination.
 servers:
-  - url: http://localhost:5001
+  - url: http://localhost:8000
+    description: Kong API Gateway
 tags:
   - name: Students
     description: Operations related to student management
-  - name: Users
+  - name: User
     description: User registration and authentication
 paths:
-  /api/users/register:
+  /api/user/register:
     post:
-      tags: [Users]
+      tags: [User]
       summary: Register a new user
       requestBody:
         required: true
@@ -32,9 +34,9 @@ paths:
                 $ref: '#/components/schemas/UserResponse'
         '400':
           description: Invalid input
-  /api/users/login:
+  /api/user/login:
     post:
-      tags: [Users]
+      tags: [User]
       summary: User login
       requestBody:
         required: true
@@ -57,7 +59,14 @@ paths:
       summary: Get all students
       security:
         - bearerAuth: []
+        - apiKeyAuth: []
       parameters:
+        - in: header
+          name: X-Auth-Token
+          required: true
+          schema:
+            type: string
+          description: Custom authentication token for the custom plugin.
         - in: query
           name: grade
           schema:
@@ -116,7 +125,14 @@ paths:
       summary: Get student by ID
       security:
         - bearerAuth: []
+        - apiKeyAuth: []
       parameters:
+        - in: header
+          name: X-Auth-Token
+          required: true
+          schema:
+            type: string
+          description: Custom authentication token for the custom plugin.
         - in: path
           name: id
           required: true
@@ -140,7 +156,14 @@ paths:
       summary: Update student by ID
       security:
         - bearerAuth: []
+        - apiKeyAuth: []
       parameters:
+        - in: header
+          name: X-Auth-Token
+          required: true
+          schema:
+            type: string
+          description: Custom authentication token for the custom plugin.
         - in: path
           name: id
           required: true
@@ -170,7 +193,14 @@ paths:
       summary: Delete student by ID
       security:
         - bearerAuth: []
+        - apiKeyAuth: []
       parameters:
+        - in: header
+          name: X-Auth-Token
+          required: true
+          schema:
+            type: string
+          description: Custom authentication token for the custom plugin.
         - in: path
           name: id
           required: true
@@ -195,6 +225,10 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Auth-Token
   schemas:
     UserRegister:
       type: object
@@ -202,12 +236,15 @@ components:
       properties:
         name:
           type: string
+          description: User's full name
           example: alice
         email:
           type: string
+          description: User's email address
           example: student123@gmail.com
         password:
           type: string
+          description: User's password
           example: yourpassword
     UserLogin:
       type: object
@@ -215,33 +252,41 @@ components:
       properties:
         email:
           type: string
+          description: User's email address
           example: student123@gmail.com
         password:
           type: string
+          description: User's password
           example: yourpassword
     UserResponse:
       type: object
       properties:
         name:
           type: string
+          description: Name of the logged-in user
           example: studentname
         token:
           type: string
+          description: JWT authentication token
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
     Student:
       type: object
       properties:
         _id:
           type: string
+          description: Unique identifier of the student
           example: "689667780e99b12a040c0a9"
         name:
           type: string
+          description: Name of the student
           example: Alice
         grade:
           type: string
+          description: Grade of the student (e.g., A, B, C, D, F)
           example: A
         createdBy:
           type: string
+          description: User ID who created the student record
           example: "689667780e99b12a040c0a9"
     StudentCreate:
       type: object
@@ -249,26 +294,32 @@ components:
       properties:
         name:
           type: string
+          description: Name of the student
           example: Alice
         grade:
           type: string
+          description: Grade of the student (e.g., A, B, C, D, F)
           example: A
     StudentUpdate:
       type: object
       properties:
         name:
           type: string
+          description: Name of the student
           example: Alice
         grade:
           type: string
+          description: Grade of the student (e.g., A, B, C, D, F)
           example: B
     StudentListResponse:
       type: object
       properties:
         students:
           type: array
+          description: List of student objects
           items:
             $ref: '#/components/schemas/Student'
         count:
           type: integer
+          description: Total number of students
           example: 10
