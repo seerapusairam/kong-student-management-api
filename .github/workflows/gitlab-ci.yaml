@@ -70,8 +70,14 @@ jobs:
           docker-compose up -d --build
 
     # Waiting for 15sec until the container is up running
-      - name: Wait for Container to start
-        run: sleep 15
+      - name: Wait for Kong Admin API
+        run: |
+          echo "Waiting for Kong Admin API..."
+          until $(curl --output /dev/null --silent --head --fail http://localhost:8001/status); do
+            echo -n '.'
+            sleep 1
+          done
+          echo "Kong Admin API is up!"
 
     #To check all containers
       - name: Check running containers
@@ -90,7 +96,7 @@ jobs:
         run: |
           curl -i -X POST http://localhost:8000/api/user/login \
           -H "Content-Type: application/json" \
-          -H "X-Auth-Token: Qweasdzxc@1123" \
+          -H "X-Auth-Token: Qweasdzxc@123" \
           -d '{
                 "email": "bhanu@gmail.com",
                 "password": "password"

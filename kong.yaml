@@ -38,7 +38,7 @@ services:
   plugins:
   - name: http-log
     config:
-      http_endpoint: https://webhook.site/26bcdc01-e72b-4971-a1f0-c3e22bc877dd
+      http_endpoint: https://webhook.site/a471f0b4-1944-47da-ad99-3c9248b43c1b
       method: POST
       timeout: 10000
   - name: rate-limiting
