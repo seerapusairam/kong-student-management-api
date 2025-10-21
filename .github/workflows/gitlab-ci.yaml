@@ -70,14 +70,8 @@ jobs:
           docker-compose up -d --build
 
     # Waiting for 15sec until the container is up running
-      - name: Wait for Kong Admin API
-        run: |
-          echo "Waiting for Kong Admin API..."
-          until $(curl --output /dev/null --silent --head --fail http://localhost:8001/status); do
-            echo -n '.'
-            sleep 1
-          done
-          echo "Kong Admin API is up!"
+      - name: Wait for Container to start
+        run: sleep 15
 
     #To check all containers
       - name: Check running containers
