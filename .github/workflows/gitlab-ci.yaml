@@ -81,6 +81,12 @@ jobs:
       - name: Validate Kong config
         run: deck validate --config kong.yaml
 
+      - name: Show kong.yaml contents
+        run: |
+          echo "--- Contents of kong.yaml ---"
+          cat kong.yaml
+          echo "-----------------------------"
+
     # Sync Kong configuration
       - name: Run decK sync
         run: deck sync -s kong.yaml
