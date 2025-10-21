@@ -7,6 +7,7 @@ services:
   routes:
   - name: student-routes
     paths:
+    - /api/students
     - /api/students/
     strip_path: false
     plugins:
@@ -30,7 +31,8 @@ services:
     - https
   - name: user-routes
     paths:
-    - /api/user/
+    - /api/user/login
+    - /api/user/register
     strip_path: false
     protocols:
     - http
